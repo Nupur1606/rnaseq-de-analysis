@@ -65,3 +65,40 @@ write.csv(res_df,
 
 cat("Results saved! Total significant genes (padj < 0.05):", 
     sum(res_df$padj < 0.05, na.rm = TRUE), "\n")
+
+    # ================================================
+# Step 6: Volcano Plot
+# ================================================
+
+library(ggplot2)
+
+# Prepare data for plotting
+res_df$significant <- ifelse(
+  res_df$padj < 0.05 & abs(res_df$log2FoldChange) > 1,
+  "Significant", "Not Significant"
+)
+
+res_df$significant[is.na(res_df$significant)] <- "Not Significant"
+
+# Create volcano plot
+volcano_plot <- ggplot(res_df, aes(x = log2FoldChange, 
+                                    y = -log10(padj),
+                                    color = significant)) +
+  geom_point(alpha = 0.4, size = 1) +
+  scale_color_manual(values = c("Not Significant" = "grey60",
+                                 "Significant" = "#E63946")) +
+  geom_vline(xintercept = c(-1, 1), linetype = "dashed", 
+             color = "black", linewidth = 0.3) +
+  geom_hline(yintercept = -log10(0.05), linetype = "dashed",
+             color = "black", linewidth = 0.3) +
+  labs(title = "Volcano Plot: Dexamethasone Treated vs Untreated",
+       x = "log2 Fold Change",
+       y = "-log10 Adjusted P-value",
+       color = "Significance") +
+  theme_minimal()
+  # Save plot
+ggsave("../results/volcano_plot.png", 
+       plot = volcano_plot,
+       width = 8, height = 6, dpi = 300)
+
+cat("Volcano plot saved!\n")
