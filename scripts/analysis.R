@@ -102,3 +102,38 @@ ggsave("../results/volcano_plot.png",
        width = 8, height = 6, dpi = 300)
 
 cat("Volcano plot saved!\n")
+
+# ================================================
+# Step 7: Heatmap of top 50 DE genes
+# ================================================
+
+library(pheatmap)
+library(RColorBrewer)
+
+# Get top 50 significant genes by adjusted p-value
+top_genes <- rownames(res_df[order(res_df$padj), ])[1:50]
+
+# Extract normalized counts for these genes
+vsd <- vst(dds, blind = FALSE)
+mat <- assay(vsd)[top_genes, ]
+
+# Scale each gene (row) so colors show relative expression
+mat_scaled <- t(scale(t(mat)))
+
+# Create annotation for columns (samples)
+annotation <- data.frame(
+  Treatment = colData(dds)$dex,
+  row.names = colnames(mat)
+)
+
+# Plot heatmap
+pheatmap(mat_scaled,
+         annotation_col = annotation,
+         color = colorRampPalette(rev(brewer.pal(9, "RdBu")))(100),
+         show_rownames = FALSE,
+         main = "Top 50 Differentially Expressed Genes",
+         filename = "../results/heatmap.png",
+         width = 8,
+         height = 10)
+
+cat("Heatmap saved!\n")
