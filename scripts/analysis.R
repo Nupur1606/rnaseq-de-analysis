@@ -137,3 +137,30 @@ pheatmap(mat_scaled,
          height = 10)
 
 cat("Heatmap saved!\n")
+
+# ================================================
+# Step 8: PCA Plot
+# ================================================
+
+# Calculate PCA using variance stabilized data
+pca_data <- plotPCA(vsd, intgroup = c("dex", "cell"), returnData = TRUE)
+percentVar <- round(100 * attr(pca_data, "percentVar"))
+
+# Create PCA plot
+pca_plot <- ggplot(pca_data, aes(x = PC1, y = PC2, 
+                                  color = dex, 
+                                  shape = cell)) +
+  geom_point(size = 4) +
+  xlab(paste0("PC1: ", percentVar[1], "% variance")) +
+  ylab(paste0("PC2: ", percentVar[2], "% variance")) +
+  labs(title = "PCA Plot: Sample Overview",
+       color = "Treatment",
+       shape = "Cell Line") +
+  theme_minimal()
+
+# Save plot
+ggsave("../results/pca_plot.png",
+       plot = pca_plot,
+       width = 8, height = 6, dpi = 300)
+
+cat("PCA plot saved!\n")
